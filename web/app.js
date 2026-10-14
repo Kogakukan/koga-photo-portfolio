@@ -11,14 +11,14 @@ function formatDate(value) {
 }
 
 function renderPhotoCard(photo, index) {
-  const label = photo.filename.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ');
+  const label = [photo.location, photo.year].filter(Boolean).join(' — ') || 'Photo';
   return `<button class="photo-card" style="--i:${index}" data-id="${esc(photo.id)}" aria-label="Ouvrir ${esc(label)}">
-    <figure><img loading="lazy" src="${esc(photo.thumb)}" alt="${esc(label)}" /><div class="card-overlay"><div><p class="card-title">${esc(label)}</p><p class="card-location">${esc(photo.location)}</p></div><span class="card-year">${esc(photo.year)}</span></div></figure>
+    <figure><img loading="lazy" src="${esc(photo.thumb)}" alt="${esc(label)}" /></figure>
   </button>`;
 }
 
 function matches(photo) {
-  const haystack = [photo.filename, photo.year, photo.location, photo.session, photo.lens, photo.camera, photo.focalLength, photo.date].filter(Boolean).join(' ').toLowerCase();
+  const haystack = [photo.filename, photo.year, photo.location, photo.session, photo.lens, photo.camera, photo.date].filter(Boolean).join(' ').toLowerCase();
   const searchMatch = !state.query || haystack.includes(state.query.toLowerCase());
   const filterMatch = state.activeFilter.type === 'all' || String(photo[state.activeFilter.type] || '') === String(state.activeFilter.value);
   return searchMatch && filterMatch;
@@ -79,15 +79,11 @@ function openPhoto(id) {
 function showCurrentPhoto() {
   const photo = state.filtered[state.currentIndex];
   if (!photo) return;
-  const label = photo.filename.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ');
+  const label = [photo.location, photo.year].filter(Boolean).join(' — ') || 'Photo';
   $('#dialogImage').src = photo.full;
   $('#dialogImage').alt = label;
-  $('#dialogTitle').textContent = label;
+  $('#dialogTitle').textContent = photo.location || photo.year || 'Photo';
   $('#dialogDate').textContent = formatDate(photo.date);
-  $('#dialogLens').textContent = fallback(photo.lens);
-  $('#dialogCamera').textContent = fallback(photo.camera);
-  $('#dialogLocation').textContent = fallback(photo.location);
-  $('#dialogFocal').textContent = fallback(photo.focalLength);
   setZoom(1);
 }
 
@@ -98,7 +94,7 @@ function initialize(catalog) {
   $('#siteTitle').firstChild.textContent = catalog.config.title || 'Antoine';
   $('#siteTagline').textContent = catalog.config.tagline || 'Photography as a way of seeing.'; 
   $('#siteSubtitle').textContent = catalog.config.subtitle || '';
-  $('#footerTitle').textContent = catalog.config.watermark || 'ANTOINE · PHOTOGRAPHY';
+  $('#footerTitle').textContent = 'ANTOINE PHOTOGRAPHIE';
   $('#footerYear').textContent = new Date().getFullYear();
   renderFilters(); renderGallery(); renderCollections();
 }

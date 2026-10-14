@@ -28,7 +28,9 @@ photos/
 
 - Le premier dossier sous l'année est le lieu affiché : `Japon`, `Paris`, etc.
 - L'année est prise depuis l'EXIF si elle existe, sinon depuis le dossier.
-- La date, le boîtier, l'objectif, la focale et les ISO sont lus depuis l'EXIF.
+- La date originale de prise de vue est lue directement dans l'EXIF du JPEG.
+- Les filtres par objectif utilisent l'objectif intégré au JPEG lorsqu'il est disponible.
+- Aucun fichier XMP manuel n'est nécessaire.
 - Les coordonnées GPS ne sont jamais affichées ni copiées dans le catalogue.
 - Les noms de dossiers peuvent être en français et contenir des espaces ou des accents.
 
@@ -80,7 +82,7 @@ Pour ajouter des photos :
 4. attends la fin de l'action GitHub ;
 5. le site est mis à jour automatiquement.
 
-Tu n'as pas à modifier manuellement les dates, objectifs ou lieux.
+Tu n'as pas à modifier manuellement les dates, objectifs ou lieux. La date affichée est la date de prise de vue intégrée au JPEG, pas la date de modification du fichier Windows.
 
 ## Test local facultatif
 

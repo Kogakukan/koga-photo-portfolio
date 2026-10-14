@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 import shutil
+from xml.etree import ElementTree as ET
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -57,32 +58,78 @@ def get_font(size: int):
     return ImageFont.load_default()
 
 
+def _decode_xmp_value(value: str) -> str:
+    return re.sub(r"\s+", " ", value.replace("\\", "")).strip()
+
+
+def read_xmp_fields(path: Path) -> dict[str, str]:
+    """Read common embedded or sidecar XMP fields without exposing GPS data."""
+    # Read only metadata embedded in the JPEG itself. No sidecar file is required.
+    try:
+        raw = path.read_bytes()
+    except OSError:
+        raw = b""
+    if not raw:
+        return {}
+    text = raw.decode("utf-8", errors="ignore")
+    fields: dict[str, str] = {}
+    patterns = {
+        "lens": [
+            r"(?:aux:Lens|exifEX:LensModel|exif:LensModel|LensModel)\s*=\s*[\"']([^\"']+)",
+            r"<(?:aux:Lens|exifEX:LensModel|exif:LensModel)[^>]*>(.*?)</",
+        ],
+        "date": [
+            r"(?:exif:DateTimeOriginal|photoshop:DateCreated|xmp:CreateDate|CreateDate)\s*=\s*[\"']([^\"']+)",
+            r"<(?:exif:DateTimeOriginal|photoshop:DateCreated|xmp:CreateDate)[^>]*>(.*?)</",
+        ],
+        "camera": [
+            r"(?:tiff:Model|Model)\s*=\s*[\"']([^\"']+)",
+            r"<(?:tiff:Model|Model)[^>]*>(.*?)</",
+        ],
+    }
+    for key, regexes in patterns.items():
+        for pattern in regexes:
+            match = re.search(pattern, text, flags=re.IGNORECASE | re.DOTALL)
+            if match:
+                value = _decode_xmp_value(match.group(1))
+                if value:
+                    fields[key] = value
+                    break
+    return fields
+
+def parse_date(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    value = value.strip()
+    for pattern in ("%Y:%m:%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S%z"):
+        try:
+            return datetime.strptime(value, pattern).isoformat()
+        except ValueError:
+            pass
+    return value if re.match(r"^20\d{2}[-:]", value) else None
+
+
 def read_metadata(path: Path, relative: Path) -> dict[str, Any]:
     with Image.open(path) as image:
         exif = image.getexif()
         data = {ExifTags.TAGS.get(k, k): v for k, v in exif.items()}
+        width, height = image.size
 
-    date_raw = data.get("DateTimeOriginal") or data.get("DateTime")
-    date_iso = None
-    if isinstance(date_raw, str):
-        try:
-            date_iso = datetime.strptime(date_raw, "%Y:%m:%d %H:%M:%S").isoformat()
-        except ValueError:
-            date_iso = date_raw
+    xmp = read_xmp_fields(path)
+    # Never use generic DateTime: Lightroom/export software can update it.
+    # Prefer the capture date, then the digitized date, then XMP capture fields.
+    date_iso = parse_date(data.get("DateTimeOriginal")) or parse_date(data.get("DateTimeDigitized"))
 
     parts = relative.parts
     year_folder = parts[0] if parts else ""
-    location = parts[1] if len(parts) > 2 else "Unknown"
-    year = date_iso[:4] if date_iso and len(date_iso) >= 4 else year_folder
-    if not year.isdigit():
-        year = "Other"
+    location = parts[1] if len(parts) >= 3 else "Unknown"
+    # The folder is authoritative for the gallery year; this avoids export-date mistakes.
+    year = year_folder if re.fullmatch(r"20\d{2}", year_folder) else (date_iso[:4] if date_iso else "Other")
 
     make = str(data.get("Make", "")).strip()
-    model = str(data.get("Model", "")).strip()
+    model = str(data.get("Model", "")).strip() or xmp.get("camera", "")
     camera = " ".join(x for x in [make, model] if x).strip() or None
-    lens = str(data.get("LensModel", "")).strip() or str(data.get("Lens", "")).strip() or None
-    focal = format_focal(data.get("FocalLength"))
-    iso = data.get("ISOSpeedRatings") or data.get("PhotographicSensitivity")
+    lens = str(data.get("LensModel", "")).strip() or str(data.get("Lens", "")).strip() or xmp.get("lens") or None
 
     return {
         "year": year,
@@ -91,12 +138,11 @@ def read_metadata(path: Path, relative: Path) -> dict[str, Any]:
         "date": date_iso,
         "camera": camera,
         "lens": lens,
-        "focalLength": focal,
-        "iso": int(iso) if isinstance(iso, (int, float)) else (str(iso) if iso else None),
+        "width": width,
+        "height": height,
         "filename": path.name,
         "sourcePath": relative.as_posix(),
     }
-
 
 def watermark(image: Image.Image, text: str) -> Image.Image:
     image = image.convert("RGB")

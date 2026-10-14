@@ -105,3 +105,19 @@ dd { margin: 5px 0 0; font-size: 13px; }
 @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 1000px) { .photo-grid, .collection-row { grid-template-columns: repeat(3, minmax(0,1fr)); } .dialog-layout { grid-template-columns: 1fr; } .photo-info { border-left: 0; border-top: 1px solid var(--line); padding: 28px; } .dialog-image-wrap { min-height: 54vh; } .dialog-arrow.next { right: 16px; } }
 @media (max-width: 650px) { .site-header { height: 72px; padding: 0 18px; } .main-nav { gap: 18px; } .nav-button.active::after { bottom: -25px; } main, .site-footer { width: min(100% - 28px, 1400px); } .hero { display: block; padding: 68px 0 48px; } .hero-description { margin-top: 28px; } .toolbar { display: block; } .toolbar-meta { margin-top: 13px; } .search-wrap { min-width: 0; } .photo-grid, .collection-row { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 9px; } .photo-card .card-overlay { opacity: 1; padding: 35px 9px 8px; } .card-title { font-size: 10px; } h1 { font-size: 56px; } .photo-info { padding: 24px 20px 30px; } }
+
+/* Minimal portfolio layout: large, uncropped images in a masonry-like flow. */
+.brand { gap: 13px; }
+.brand-name { font-size: 13px; font-weight: 650; letter-spacing: -.025em; }
+.brand-script { color: var(--muted); font-family: Georgia, "Times New Roman", serif; font-size: 18px; font-style: italic; letter-spacing: -.04em; }
+main { padding-top: 42px; }
+.toolbar { margin-top: 0; }
+.photo-grid { display: block; column-count: 3; column-gap: 18px; padding: 26px 0 100px; }
+.photo-card { display: block; width: 100%; margin: 0 0 18px; padding: 0; break-inside: avoid; }
+.photo-card figure { aspect-ratio: auto; background: transparent; overflow: hidden; }
+.photo-card img { width: 100%; height: auto; object-fit: contain; display: block; transition: transform .6s cubic-bezier(.2,.8,.2,1), opacity .35s ease; }
+.photo-card:hover img { transform: scale(1.025); }
+.photo-card .card-overlay { display: none; }
+@media (max-width: 1000px) { .photo-grid { column-count: 2; } }
+@media (max-width: 650px) { main { padding-top: 22px; } .photo-grid { column-count: 2; column-gap: 10px; padding-top: 18px; } .photo-card { margin-bottom: 10px; } }
+@media (max-width: 440px) { .photo-grid { column-count: 1; } }
