@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Antoine — Photography</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Retour à l'accueil">
+      <span class="brand-mark">A</span>
+      <span>ANTOINE<br><small>PHOTOGRAPHY</small></span>
+    </a>
+    <nav class="main-nav" aria-label="Navigation principale">
+      <button class="nav-button active" data-view="gallery">Galerie</button>
+      <button class="nav-button" data-view="collections">Collections</button>
+    </nav>
+    <button class="theme-button" id="themeToggle" aria-label="Changer le thème">◐</button>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">SELECTED WORKS</p>
+        <h1 id="siteTitle">Antoine<br><em id="siteTagline">Photography as a way of seeing.</em></h1>
+      </div>
+      <p class="hero-description" id="siteSubtitle">Une sélection de photographies, de lieux et de moments.</p>
+    </section>
+
+    <section class="toolbar" aria-label="Filtres de la galerie">
+      <div class="search-wrap">
+        <span aria-hidden="true">⌕</span>
+        <input id="searchInput" type="search" placeholder="Rechercher un lieu, un objectif, une année…" autocomplete="off" />
+      </div>
+      <div class="toolbar-meta"><span id="photoCount">0 photos</span><span class="dot">·</span><span id="activeFilter">Toutes</span></div>
+    </section>
+
+    <section id="galleryView" class="view-panel">
+      <div class="filter-row" id="filterRow"></div>
+      <div class="photo-grid" id="photoGrid"></div>
+      <div class="empty-state" id="emptyState" hidden>
+        <strong>Aucune photo trouvée.</strong>
+        <span>Ajoute des JPEG dans le dossier <code>photos/</code> ou modifie ta recherche.</span>
+      </div>
+    </section>
+
+    <section id="collectionsView" class="view-panel" hidden>
+      <div class="collections-heading">
+        <p class="eyebrow">BROWSE BY</p>
+        <h2>Collections</h2>
+        <p>Parcourir les images par année, lieu ou objectif.</p>
+      </div>
+      <div class="collection-groups" id="collectionGroups"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span id="footerTitle">ANTOINE · PHOTOGRAPHY</span>
+    <span>© <span id="footerYear"></span></span>
+  </footer>
+
+  <dialog id="photoDialog" class="photo-dialog">
+    <button class="dialog-close" id="dialogClose" aria-label="Fermer">×</button>
+    <button class="dialog-arrow prev" id="prevPhoto" aria-label="Photo précédente">←</button>
+    <div class="dialog-layout">
+      <div class="dialog-image-wrap" id="dialogImageWrap">
+        <img id="dialogImage" alt="" />
+        <div class="zoom-hint">Molette ou boutons pour zoomer</div>
+      </div>
+      <aside class="photo-info">
+        <p class="eyebrow">PHOTO DETAILS</p>
+        <h2 id="dialogTitle">—</h2>
+        <dl>
+          <div><dt>Date</dt><dd id="dialogDate">—</dd></div>
+          <div><dt>Objectif</dt><dd id="dialogLens">—</dd></div>
+          <div><dt>Appareil</dt><dd id="dialogCamera">—</dd></div>
+          <div><dt>Lieu</dt><dd id="dialogLocation">—</dd></div>
+          <div><dt>Focale</dt><dd id="dialogFocal">—</dd></div>
+        </dl>
+        <div class="zoom-controls">
+          <button id="zoomOut" aria-label="Dézoomer">−</button>
+          <span id="zoomValue">100%</span>
+          <button id="zoomIn" aria-label="Zoomer">+</button>
+        </div>
+      </aside>
+    </div>
+    <button class="dialog-arrow next" id="nextPhoto" aria-label="Photo suivante">→</button>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
