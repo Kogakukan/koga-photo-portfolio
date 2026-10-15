@@ -109,6 +109,21 @@ def parse_date(value: Any) -> str | None:
     return value if re.match(r"^20\d{2}[-:]", value) else None
 
 
+def format_fraction(value: Any) -> str | None:
+    number = rational_to_float(value)
+    if number is None:
+        return None
+    if number >= 1:
+        return f"{number:.1f} s".replace(".0 s", " s")
+    denominator = round(1 / number) if number else 0
+    return f"1/{denominator} s" if denominator else None
+
+
+def format_aperture(value: Any) -> str | None:
+    number = rational_to_float(value)
+    return f"f/{number:.1f}".replace(".0", "") if number is not None else None
+
+
 def read_metadata(path: Path, relative: Path) -> dict[str, Any]:
     with Image.open(path) as image:
         exif = image.getexif()
@@ -130,12 +145,17 @@ def read_metadata(path: Path, relative: Path) -> dict[str, Any]:
     year_folder = parts[0] if parts else ""
     location = parts[1] if len(parts) >= 3 else "Unknown"
     # The folder is authoritative for the gallery year; this avoids export-date mistakes.
-    year = year_folder if re.fullmatch(r"20\d{2}", year_folder) else (date_iso[:4] if date_iso else "Other")
+    year = date_iso[:4] if date_iso else (year_folder if re.fullmatch(r"20\d{2}", year_folder) else "Other")
 
     make = str(data.get("Make", "")).strip()
     model = str(data.get("Model", "")).strip() or xmp.get("camera", "")
     camera = " ".join(x for x in [make, model] if x).strip() or None
     lens = str(data.get("LensModel", "")).strip() or str(data.get("Lens", "")).strip() or xmp.get("lens") or None
+    lens_make = str(data.get("LensMake", "")).strip() or None
+    focal_length = format_focal(data.get("FocalLength"))
+    aperture = format_aperture(data.get("FNumber"))
+    shutter = format_fraction(data.get("ExposureTime"))
+    iso = data.get("ISOSpeedRatings") or data.get("PhotographicSensitivity")
 
     return {
         "year": year,
@@ -144,6 +164,11 @@ def read_metadata(path: Path, relative: Path) -> dict[str, Any]:
         "date": date_iso,
         "camera": camera,
         "lens": lens,
+        "lensMake": lens_make,
+        "focalLength": focal_length,
+        "aperture": aperture,
+        "shutter": shutter,
+        "iso": int(iso) if isinstance(iso, (int, float)) else (str(iso) if iso else None),
         "width": width,
         "height": height,
         "orientation": "landscape" if width / max(height, 1) > 1.12 else ("portrait" if height / max(width, 1) > 1.12 else "square"),
