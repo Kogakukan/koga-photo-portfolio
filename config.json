@@ -1,7 +1,5 @@
 {
-  "title": "Antoine",
-  "tagline": "Photography as a way of seeing.",
-  "subtitle": "Une sélection de photographies, de lieux et de moments.",
-  "watermark": "",
-  "defaultView": "gallery"
+  "siteTitle": "Antoine Photographie — Portfolio",
+  "description": "Une sélection de mes photographies.",
+  "siteUrl": "https://kogakukan.github.io/koga-photo-portfolio/"
 }
