@@ -91,9 +91,6 @@ function movePhoto(delta) { if (!state.filtered.length) return; state.currentInd
 
 function initialize(catalog) {
   state.catalog = catalog; state.photos = catalog.photos || [];
-  $('#siteTitle').firstChild.textContent = catalog.config.title || 'Antoine';
-  $('#siteTagline').textContent = catalog.config.tagline || 'Photography as a way of seeing.'; 
-  $('#siteSubtitle').textContent = catalog.config.subtitle || '';
   $('#footerTitle').textContent = 'ANTOINE PHOTOGRAPHIE';
   $('#footerYear').textContent = new Date().getFullYear();
   renderFilters(); renderGallery(); renderCollections();
