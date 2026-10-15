@@ -124,6 +124,52 @@ def format_aperture(value: Any) -> str | None:
     return f"f/{number:.1f}".replace(".0", "") if number is not None else None
 
 
+
+SONY_BODIES = {
+    "ILCE-7": "α7", "ILCE-7M2": "α7 II", "ILCE-7M3": "α7 III", "ILCE-7M4": "α7 IV",
+    "ILCE-7RM2": "α7R II", "ILCE-7RM3": "α7R III", "ILCE-7RM4": "α7R IV", "ILCE-7RM5": "α7R V",
+    "ILCE-7SM3": "α7S III", "ILCE-7C": "α7C", "ILCE-7CM2": "α7C II", "ILCE-7CR": "α7CR",
+    "ILCE-1": "α1", "ILCE-9": "α9", "ILCE-6400": "α6400", "ILCE-6600": "α6600", "ILCE-6700": "α6700",
+}
+TAMRON_CODES = {
+    "A036": "28-75mm F/2.8 Di III RXD", "A063": "28-75mm F/2.8 Di III VXD G2",
+    "A046": "17-28mm F/2.8 Di III RXD", "A056": "70-180mm F/2.8 Di III VXD",
+    "A058": "35-150mm F/2-2.8 Di III VXD", "A062": "20-40mm F/2.8 Di III VXD",
+    "A071": "28-200mm F/2.8-5.6 Di III RXD",
+}
+
+
+def pretty_camera(make: str, model: str) -> str | None:
+    model = (model or "").strip()
+    make = (make or "").strip()
+    if not model:
+        return None
+    if make.upper() == "SONY":
+        return f"Sony {SONY_BODIES.get(model, model)}"
+    brand = make.title() if make else ""
+    if brand and model.lower().startswith(brand.lower()):
+        return model
+    return f"{brand} {model}".strip()
+
+
+def pretty_lens(lens_model: str | None, lens_make: str | None) -> str | None:
+    lens = (lens_model or "").strip()
+    if not lens:
+        return None
+    make = (lens_make or "").strip()
+    code = re.search(r"\b([ABF]\d{3})\b", lens)
+    if code and (not make or make.lower() == "tamron"):
+        name = TAMRON_CODES.get(code.group(1))
+        return f"Tamron {name}" if name else f"Tamron {lens}"
+    if make:
+        return lens if lens.lower().startswith(make.lower()) else f"{make.title()} {lens}"
+    if re.search(r"\bDG DN\b|\bDC DN\b", lens):
+        return f"Sigma {lens}"
+    if re.match(r"^(FE|E)\s", lens):
+        return f"Sony {lens}"
+    return lens
+
+
 def read_metadata(path: Path, relative: Path) -> dict[str, Any]:
     with Image.open(path) as image:
         exif = image.getexif()
@@ -149,7 +195,7 @@ def read_metadata(path: Path, relative: Path) -> dict[str, Any]:
 
     make = str(data.get("Make", "")).strip()
     model = str(data.get("Model", "")).strip() or xmp.get("camera", "")
-    camera = " ".join(x for x in [make, model] if x).strip() or None
+    camera = pretty_camera(make, model)
     lens = str(data.get("LensModel", "")).strip() or str(data.get("Lens", "")).strip() or xmp.get("lens") or None
     lens_make = str(data.get("LensMake", "")).strip() or None
     focal_length = format_focal(data.get("FocalLength"))
@@ -163,8 +209,8 @@ def read_metadata(path: Path, relative: Path) -> dict[str, Any]:
         "session": "/".join(parts[1:-1]) if len(parts) > 2 else location,
         "date": date_iso,
         "camera": camera,
-        "lens": lens,
-        "lensMake": lens_make,
+        "lens": pretty_lens(lens, lens_make),
+        "lensModel": lens,
         "focalLength": focal_length,
         "aperture": aperture,
         "shutter": shutter,

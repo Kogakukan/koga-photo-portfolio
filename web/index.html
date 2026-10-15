@@ -3,82 +3,70 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#ffffff" />
+  <meta name="theme-color" content="#fbfaf8" />
   <title>Antoine Photographie — Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="site-header">
-    <a class="brand" href="#top" aria-label="Retour à l'accueil">
+  <header class="header">
+    <a class="brand" href="./" aria-label="Accueil">
       <span class="brand-name">Antoine Photographie</span>
-      <span class="brand-script">portfolio</span>
+      <span class="brand-sub">portfolio</span>
     </a>
-    <nav class="main-nav" aria-label="Navigation principale">
-      <button class="nav-button active" data-view="gallery">Galerie</button>
-      <button class="nav-button" data-view="collections">Collections</button>
+
+    <nav class="nav" aria-label="Navigation">
+      <button class="nav-link is-active" data-view="gallery">Galerie</button>
+      <button class="nav-link" data-view="collections">Collections</button>
     </nav>
-    <button class="theme-button" id="themeToggle" aria-label="Changer le thème">◐</button>
+
+    <div class="tools">
+      <label class="search" aria-label="Rechercher">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+        <input id="search" type="search" placeholder="Rechercher" autocomplete="off" />
+      </label>
+      <button class="theme-toggle" id="themeToggle" aria-label="Changer de thème"><span></span></button>
+    </div>
   </header>
 
-  <main id="top">
-    <section class="toolbar" aria-label="Filtres de la galerie">
-      <div class="search-wrap">
-        <span aria-hidden="true">⌕</span>
-        <input id="searchInput" type="search" placeholder="Rechercher un lieu, un objectif, une année…" autocomplete="off" />
-      </div>
-      <div class="toolbar-meta"><span id="photoCount">0 photos</span><span class="dot">·</span><span id="activeFilter">Toutes</span></div>
+  <main>
+    <section class="view" id="view-gallery">
+      <div class="filters" id="filters"></div>
+      <div class="gallery" id="gallery"></div>
     </section>
 
-    <section id="galleryView" class="view-panel">
-      <div class="filter-row" id="filterRow"></div>
-      <div class="photo-grid" id="photoGrid"></div>
-
-    </section>
-
-    <section id="collectionsView" class="view-panel" hidden>
-      <div class="collections-heading">
-        <p class="eyebrow">BROWSE BY</p>
-        <h2>Collections</h2>
-        <p>Parcourir les images par année, lieu ou objectif.</p>
-      </div>
-      <div class="collection-groups" id="collectionGroups"></div>
+    <section class="view" id="view-collections" hidden>
+      <div id="collections"></div>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <span id="footerTitle">ANTOINE · PHOTOGRAPHY</span>
-    <span>© <span id="footerYear"></span></span>
+  <footer class="footer">
+    <span>Antoine Photographie</span>
+    <span id="footerYear"></span>
   </footer>
 
-  <dialog id="photoDialog" class="photo-dialog">
-    <button class="dialog-close" id="dialogClose" aria-label="Fermer">×</button>
-    <button class="dialog-arrow prev" id="prevPhoto" aria-label="Photo précédente">←</button>
-    <div class="dialog-layout">
-      <div class="dialog-image-wrap" id="dialogImageWrap">
-        <img id="dialogImage" alt="" />
-        <div class="zoom-hint">Molette ou boutons pour zoomer</div>
-      </div>
-      <aside class="photo-info">
-        <p class="eyebrow">PHOTO DETAILS</p>
-        <h2 id="dialogTitle">—</h2>
-        <dl>
-          <div><dt>Date de prise de vue</dt><dd id="dialogDate">—</dd></div>
-          <div><dt>Objectif</dt><dd id="dialogLens">—</dd></div>
-          <div><dt>Appareil</dt><dd id="dialogCamera">—</dd></div>
-          <div><dt>Focale</dt><dd id="dialogFocal">—</dd></div>
-          <div><dt>Ouverture</dt><dd id="dialogAperture">—</dd></div>
-          <div><dt>Vitesse</dt><dd id="dialogShutter">—</dd></div>
-          <div><dt>ISO</dt><dd id="dialogIso">—</dd></div>
-        </dl>
-        <div class="zoom-controls">
-          <button id="zoomOut" aria-label="Dézoomer">−</button>
-          <span id="zoomValue">100%</span>
-          <button id="zoomIn" aria-label="Zoomer">+</button>
-        </div>
-      </aside>
+  <div class="lightbox" id="lightbox" hidden>
+    <div class="lb-stage" id="lbStage">
+      <img id="lbImage" alt="" />
     </div>
-    <button class="dialog-arrow next" id="nextPhoto" aria-label="Photo suivante">→</button>
-  </dialog>
+    <aside class="lb-info">
+      <p class="lb-place" id="lbPlace"></p>
+      <p class="lb-date" id="lbDate"></p>
+      <dl class="lb-meta" id="lbMeta"></dl>
+      <p class="lb-counter" id="lbCounter"></p>
+    </aside>
+    <button class="lb-btn lb-close" id="lbClose" aria-label="Fermer">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <button class="lb-btn lb-prev" id="lbPrev" aria-label="Photo précédente">
+      <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <button class="lb-btn lb-next" id="lbNext" aria-label="Photo suivante">
+      <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+    </button>
+  </div>
 
   <script src="app.js"></script>
 </body>
