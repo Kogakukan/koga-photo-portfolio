@@ -28,8 +28,9 @@ photos/
 
 - Le premier dossier sous l'année est le lieu affiché : `Japon`, `Paris`, etc.
 - L'année est prise depuis l'EXIF si elle existe, sinon depuis le dossier.
-- La date originale de prise de vue est lue directement dans l'EXIF du JPEG.
+- La date originale de prise de vue est lue directement dans l'EXIF imbriqué du JPEG, comme dans les propriétés Windows.
 - Les filtres par objectif utilisent l'objectif intégré au JPEG lorsqu'il est disponible.
+- Les photos horizontales occupent deux colonnes et les portraits une colonne, sans recadrage.
 - Aucun fichier XMP manuel n'est nécessaire.
 - Les coordonnées GPS ne sont jamais affichées ni copiées dans le catalogue.
 - Les noms de dossiers peuvent être en français et contenir des espaces ou des accents.

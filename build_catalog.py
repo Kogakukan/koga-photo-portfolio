@@ -113,6 +113,12 @@ def read_metadata(path: Path, relative: Path) -> dict[str, Any]:
     with Image.open(path) as image:
         exif = image.getexif()
         data = {ExifTags.TAGS.get(k, k): v for k, v in exif.items()}
+        # DateTimeOriginal and LensModel live in the nested EXIF IFD on many Sony/Lightroom JPEGs.
+        try:
+            nested = exif.get_ifd(ExifTags.IFD.Exif)
+            data.update({ExifTags.TAGS.get(k, k): v for k, v in nested.items()})
+        except Exception:
+            pass
         width, height = image.size
 
     xmp = read_xmp_fields(path)
@@ -140,6 +146,7 @@ def read_metadata(path: Path, relative: Path) -> dict[str, Any]:
         "lens": lens,
         "width": width,
         "height": height,
+        "orientation": "landscape" if width / max(height, 1) > 1.12 else ("portrait" if height / max(width, 1) > 1.12 else "square"),
         "filename": path.name,
         "sourcePath": relative.as_posix(),
     }

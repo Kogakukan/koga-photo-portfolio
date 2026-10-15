@@ -12,7 +12,7 @@ function formatDate(value) {
 
 function renderPhotoCard(photo, index) {
   const label = [photo.location, photo.year].filter(Boolean).join(' — ') || 'Photo';
-  return `<button class="photo-card" style="--i:${index}" data-id="${esc(photo.id)}" aria-label="Ouvrir ${esc(label)}">
+  return `<button class="photo-card ${esc(photo.orientation || 'square')}" style="--i:${index}" data-id="${esc(photo.id)}" aria-label="Ouvrir ${esc(label)}">
     <figure><img loading="lazy" src="${esc(photo.thumb)}" alt="${esc(label)}" /></figure>
   </button>`;
 }
@@ -27,7 +27,6 @@ function matches(photo) {
 function renderGallery() {
   state.filtered = state.photos.filter(matches);
   $('#photoGrid').innerHTML = state.filtered.map(renderPhotoCard).join('');
-  $('#emptyState').hidden = state.filtered.length > 0;
   $('#photoCount').textContent = `${state.filtered.length} photo${state.filtered.length === 1 ? '' : 's'}`;
   $('#activeFilter').textContent = state.activeFilter.type === 'all' ? 'Toutes' : state.activeFilter.value;
   document.querySelectorAll('.photo-card').forEach((card) => card.addEventListener('click', () => openPhoto(card.dataset.id)));
